@@ -1,5 +1,134 @@
 # Complete Architecture Guide
 
+```mermaid
+flowchart TB
+    subgraph Contexts["Context Layer"]
+        direction TB
+        dataCtx[dataContext.js]
+        vizCtx[vizContext.js]
+    end
+
+    subgraph Core["Pure Core"]
+        direction TB
+        PT[PureTemplate]
+        PE[PureEventEmitter]
+        PL[PureEventListener]
+    end
+
+    subgraph Data["Data Layer"]
+        direction TB
+        stores[stores.js]
+        transforms[transforms.js]
+        sources[sources.js]
+        processors[processors.js]
+    end
+
+    subgraph Viz["Visualization Layer"]
+        direction TB
+        renderers[renderers.js]
+        interactions[interactions.js]
+        layouts[layouts.js]
+    end
+
+    subgraph Styles["Style Layer"]
+        direction TB
+        reset[reset.css]
+        tokens[tokens.css]
+        core[core.css]
+        utils[utils.css]
+    end
+
+    %% Main data flow
+    Data --> PE
+    PE --> PT
+    PT --> PL
+    PL --> PT
+
+    %% Context connections
+    Contexts -.-> Core
+
+    %% Style connections
+    Styles -.-> Viz
+```
+
+```mermaid
+flowchart TB
+    subgraph Input["Input Layer"]
+        direction TB
+        sources[sources.js]
+        stores[stores.js]
+    end
+
+    subgraph Process["Processing Layer"]
+        direction TB
+        transforms[transforms.js]
+        processors[processors.js]
+    end
+
+    subgraph Render["Render Layer"]
+        direction TB
+        renderers[renderers.js]
+        layouts[layouts.js]
+        interactions[interactions.js]
+    end
+
+    subgraph Context["Context Layer"]
+        direction TB
+        dataContext[dataContext.js]
+        vizContext[vizContext.js]
+    end
+
+    subgraph Styles["Style Layer"]
+        direction TB
+        app[app.css]
+        reset[reset.css]
+        tokens[tokens.css]
+        core[core.css]
+        utils[utils.css]
+    end
+
+    subgraph Components["Pure Components"]
+        direction TB
+        PureEventEmitter[PureEventEmitter.svelte]
+        PureTemplate[PureTemplate.svelte]
+        PureEventListener[PureEventListener.svelte]
+    end
+
+    %% Core data flow
+    sources --> PureEventEmitter
+    transforms --> PureEventEmitter
+    transforms --> PureTemplate
+    transforms --> PureEventListener
+
+    %% Store connections
+    stores <--> PureEventEmitter
+    stores <--> PureTemplate
+    stores <--> PureEventListener
+
+    %% Processing
+    processors --> transforms
+
+    %% Visualization flow
+    PureTemplate --> renderers
+    renderers --> layouts
+    layouts --> PureEventListener
+    interactions --> PureEventListener
+
+    %% Component interactions
+    PureEventListener --> PureTemplate
+    PureTemplate --> PureEventEmitter
+
+    %% Context connections
+    dataContext -.-> PureEventEmitter
+    dataContext -.-> PureTemplate
+    dataContext -.-> PureEventListener
+    vizContext -.-> PureTemplate
+    vizContext -.-> PureEventListener
+
+    %% Style applications
+    Styles -.-> Render
+```
+
 ## Directory Structure
 ```
 src/

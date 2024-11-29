@@ -1,19 +1,19 @@
 <script>
-    import { $state, $effect } from 'svelte';
-    
-    export let source = null;      
-    export let handler = (x, _ctx) => x;   
-    export let value = undefined;  
-    export let active = true;     
-    export let context = () => ({});
-    
+    let {
+        source = null,
+        handler = (x, _ctx) => x,
+        value = undefined,
+        active = true,
+        context = () => ({})
+    } = $props()
+
     const state = $state({
-        current: undefined,
+        current: value,
         meta: null,
         error: null,
         cleanup: null
     });
-    
+
     const process = (data) => {
         try {
             const result = handler(data, context());
@@ -25,13 +25,12 @@
             throw new Error(`Processing error: ${e.message}`);
         }
     };
-    
+
     $effect(() => {
         if (!source || !active) return;
-        
+
         try {
-            const cleanup = source(
-            (data) => {
+            const cleanup = source((data) => {
                 try {
                     const result = process(data);
                     state.current = result.value;
@@ -40,14 +39,13 @@
                 } catch (e) {
                     state.error = e.message;
                 }
-            }
-            );
-            
+            });
+
             state.cleanup = cleanup || null;
         } catch (e) {
             state.error = e.message;
         }
-        
+
         return () => {
             if (state.cleanup) state.cleanup();
         };
@@ -57,7 +55,7 @@
 {#if state.error}
     <slot name="error" error={state.error}/>
 {:else}
-    <slot 
+    <slot
         value={state.current}
         meta={state.meta}
     />

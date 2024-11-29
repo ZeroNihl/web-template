@@ -79,6 +79,34 @@ Handle DOM and user interactions.
 
 ## Composition Patterns
 
+```mermaid
+stateDiagram-v2
+    [*] --> PureEventEmitter
+    
+    PureEventEmitter --> PureTemplate: data stream
+    PureTemplate --> PureEventListener: render
+    
+    state PureEventEmitter {
+        [*] --> source
+        source --> handler
+        handler --> emit
+    }
+    
+    state PureTemplate {
+        [*] --> validate
+        validate --> transform
+        transform --> render
+    }
+    
+    state PureEventListener {
+        [*] --> listen
+        listen --> process
+        process --> update
+    }
+    
+    PureEventListener --> PureTemplate: interaction
+```
+
 ### 1. Data Flow Pipeline
 
 ```svelte

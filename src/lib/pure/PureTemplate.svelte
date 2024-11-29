@@ -1,18 +1,18 @@
 <script>
-    import { $state, $derived } from 'svelte';
-    
-    export let value = undefined;
-    export let transform = (x, _ctx) => x;
-    export let schema = null;
-    export let context = () => ({});  // Context generator function
-    
+    let {
+        value = undefined,
+        transform = (x, _ctx) => x,
+        schema = null,
+        context = () => ({})
+    } = $props();
+
     const state = $state({
         current: value,
         meta: null,
         error: null
     });
-    
-    $derived(() => {
+
+    $effect(() => {
         try {
             if (schema && !schema(value)) {
                 throw new Error('Schema validation failed');
@@ -30,7 +30,7 @@
 {#if state.error}
     <slot name="error" error={state.error}/>
 {:else}
-    <slot 
+    <slot
         value={state.current}
         meta={state.meta}
     />

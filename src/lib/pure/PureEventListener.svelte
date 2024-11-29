@@ -1,18 +1,19 @@
 <script>
-    import { $state } from 'svelte';
-    
-    export let events = ['click'];
-    export let handler = (x, _ctx) => x;
-    export let value = undefined;
-    export let options = {};
-    export let context = () => ({});
-    
+    let {
+        events = ['click'],
+        handler = (x, _ctx) => x,
+        value = undefined,
+        options = {},
+        context = () => ({}),
+        ...others
+    } = $props();
+
     const state = $state({
         current: undefined,
         meta: null,
         error: null
     });
-    
+
     const process = (event) => {
         try {
             const result = handler(value, {
@@ -29,7 +30,7 @@
             throw new Error(`Processing error: ${e.message}`);
         }
     };
-    
+
     const handleEvent = (event) => {
         try {
             const result = process(event);
@@ -40,12 +41,12 @@
             state.error = e.message;
         }
     };
-    
+
     $effect(() => {
         events.forEach(event => {
             element.addEventListener(event, handleEvent, options);
         });
-        
+
         return () => {
             events.forEach(event => {
                 element.removeEventListener(event, handleEvent, options);
@@ -54,11 +55,11 @@
     });
 </script>
 
-<div {...$$restProps}>
+<div {...others}>
     {#if state.error}
         <slot name="error" error={state.error}/>
     {:else}
-        <slot 
+        <slot
             value={state.current}
             meta={state.meta}
         />
